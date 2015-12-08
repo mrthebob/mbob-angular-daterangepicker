@@ -27,8 +27,18 @@
         opts = angular.extend({}, dateRangePickerConfig, customOpts);
         _picker = null;
         clear = function() {
-          _picker.setStartDate();
-          _picker.setEndDate();
+          var emptyStart = moment();
+          var emptyEnd   = moment();
+          if (!_picker.timePicker) {
+            emptyStart = emptyStart.startOf('day');
+            emptyEnd   = emptyEnd.endOf('day');
+          }
+          if (emptyStart.toISOString() != _picker.startDate.toISOString()) {
+            _picker.setStartDate();
+          }
+          if (emptyEnd.toISOString() != _picker.endDate.toISOString()) {
+            _picker.setEndDate();
+          }
           return el.val('');
         };
         _setStartDate = function(newValue) {
