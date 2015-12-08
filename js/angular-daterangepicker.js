@@ -40,8 +40,18 @@
         opts = _mergeOpts({}, dateRangePickerConfig, customOpts);
         _picker = null;
         _clear = function() {
-          _picker.setStartDate();
-          return _picker.setEndDate();
+          var emptyStart = moment();
+          var emptyEnd   = moment();
+          if (!_picker.timePicker) {
+            emptyStart = emptyStart.startOf('day');
+            emptyEnd   = emptyEnd.endOf('day');
+          }
+          if (emptyStart.toISOString() != _picker.startDate.toISOString()) {
+            _picker.setStartDate();
+          }
+          if (emptyEnd.toISOString() != _picker.endDate.toISOString()) {
+            _picker.setEndDate();
+          }
         };
         _setDatePoint = function(setter) {
           return function(newValue) {
