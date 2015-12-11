@@ -21,24 +21,40 @@
         clearable: '='
       },
       link: function($scope, element, attrs, modelCtrl) {
-        var clear, customOpts, el, opts, _formatted, _init, _picker, _setEndDate, _setStartDate, _validateMax, _validateMin;
+        var clear, customOpts, el, opts, _formatted, _init, _picker, _setEndDate, _setStartDate, _setPickerDate, _validateMax, _validateMin;
         el = $(element);
         customOpts = $scope.opts;
         opts = angular.extend({}, dateRangePickerConfig, customOpts);
         _picker = null;
-        clear = function() {
-          var emptyStart = moment();
-          var emptyEnd   = moment();
+        _setPickerDate = function(which, date) {
+          var d = date ? moment(date) : moment();
           if (!_picker.timePicker) {
-            emptyStart = emptyStart.startOf('day');
-            emptyEnd   = emptyEnd.endOf('day');
+            if (which == 'end') {
+              d = d.endOf('day');
+            } else {
+              d = d.startOf('day');
+            }
           }
-          if (emptyStart.toISOString() != _picker.startDate.toISOString()) {
-            _picker.setStartDate();
+          if (which == 'end') {
+            if (d.toISOString() != _picker.endDate.toISOString()) {
+              if (d) {
+                return _picker.setEndDate(d);
+              }
+              return _picker.setEndDate();
+            }
+
+            return;
           }
-          if (emptyEnd.toISOString() != _picker.endDate.toISOString()) {
-            _picker.setEndDate();
+          if (d.toISOString() != _picker.startDate.toISOString()) {
+            if (date) { // if we were sent a date
+              return _picker.setStartDate(d);
+            }
+            return _picker.setStartDate();
           }
+        };
+        clear = function() {
+          _setPickerDate('start');
+          _setPickerDate('end');
           return el.val('');
         };
         _setStartDate = function(newValue) {
@@ -50,9 +66,9 @@
               } else {
                 m = moment(newValue);
                 if (_picker.endDate < m) {
-                  _picker.setEndDate(m);
+                  _setPickerDate('end', m);
                 }
-                return _picker.setStartDate(m);
+                return  _setPickerDate('start', m);
               }
             }
           });
@@ -66,9 +82,9 @@
               } else {
                 m = moment(newValue);
                 if (_picker.startDate > m) {
-                  _picker.setStartDate(m);
+                  _setPickerDate('start', m);
                 }
-                return _picker.setEndDate(m);
+                return _setPickerDate('end', m);
               }
             }
           });
